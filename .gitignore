@@ -39,8 +39,6 @@ build/
 knowledge/user_profiles/*
 !knowledge/user_profiles/_template/
 !knowledge/user_profiles/README.md
-# Ronak's profile is tracked as the primary user profile
-!knowledge/user_profiles/Ronak/
 
 # Git
 *.orig

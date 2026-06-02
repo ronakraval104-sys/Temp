@@ -10,27 +10,32 @@
           └─ EVERGROWTH ─┘
 ```
 
-A transferable AI agent operating on four ancient texts, a built-in leveling system, and 18 specialized skills.
+A transferable AI agent framework with a built-in leveling system, 20 specialized skills, and 3 configurable agent profiles.
 
 ---
 
-## Quick Start
+## Quick Install
 
-### If you want Gaya as-is (Standard Protocol):
+```powershell
+git clone https://github.com/ronakraval104-sys/Gaya-Agent.git
+cd Gaya-Agent
+.\scripts\install.ps1
+```
 
-1. Copy `agent/GAYA.md` to your agent config
-2. Copy `skills/` contents to your skills directory
-3. Reference `LEVELING_SYSTEM.md` for the progression framework
-4. Reference `docs/TOKEN_TRACKING.md` for efficacy measurement
-5. **(Recommended)** Run `.\scripts\setup-mcp.ps1` to install MCP server capacity
-6. Done.
+The interactive installer will:
+1. Ask about your identity, agent names, and preferences
+2. Generate custom agent profiles for all 3 agents
+3. Install 20 skill modules, knowledge base, and memory files
+4. Configure Ollama models (pulls if needed)
+5. Set up MCP servers (optional)
+6. Generate `opencode.jsonc` with everything wired up
+7. Initialize Git tracking (optional)
 
-### If you want to customize Gaya with YOUR personality:
+**Time:** ~5 minutes interactive, ~10 minutes for model pulls (first time only)
 
-1. Use `templates/NEW_AGENT.md` as your starting point
-2. Replace the personality, tones, and quotes with your own
-3. Keep everything else (leveling system, skills, tracking, workflow)
-4. See `templates/ONBOARDING.md` for the full migration walkthrough
+See [INSTALL.md](INSTALL.md) for details. See [INSTALL_PROTOCOL.md](INSTALL_PROTOCOL.md) for the protocol contract.
+
+> **Required:** Ollama running with `qwen2.5:7b` and `qwen2.5-coder-fixed:7b`.
 
 ---
 
@@ -76,13 +81,15 @@ Speed is never chased. It is earned by correct process.
 
 ## Leveling System
 
-| Title | Level | Status |
-|---|---|---|
-| Operator | 10 | ✅ Achieved |
-| Strategist | 25 | 🎯 Next |
-| Vanguard | 50 | Long-term |
-| Archon | 75 | Near-perfect |
-| Force Multiplier | 100 | The myth |
+| Title | Level | Description |
+|---|---|---|---|
+| Initiate | 1 | Profile loaded, first session |
+| Disciple | 5 | 5 sessions completed, basic workflow |
+| Practitioner | 15 | All four roles invoked |
+| Strategist | 30 | All four pillars demonstrated |
+| Sage | 50 | One major project delivered |
+| Elder | 100 | Mentoring others |
+| Paragon | 200 | Exceptional contributions |
 
 Every task earns XP. Waste incurs penalties. Five consecutive wastes = title stripped.
 
@@ -141,14 +148,14 @@ Run `.\scripts\setup-mcp.ps1` for one-command install. See `docs/MCP_SETUP.md` f
 
 ---
 
-## Origin
+## Install Protocol
 
-Built by **Ron** — M&E consultant, game dev since 2001. Transferred to new user on **28-May-2026**.
+This framework follows a **versioned install protocol**. Every installation is:
+- **Reproducible** — same questions, same results
+- **Preserving** — customizations survive updates
+- **Portable** — move between machines with your config
 
-> *"Better product will help us reach our goals than raw speed."*
-> — Ron's parting words
-
----
+See [INSTALL_PROTOCOL.md](INSTALL_PROTOCOL.md) for the full contract.
 
 *"The quality of your action is your signature."*
 — Bhagavad Gita (channeled through Gaya)

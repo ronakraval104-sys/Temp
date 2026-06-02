@@ -1,60 +1,47 @@
-# Gaya Migration — Onboarding Guide
+# Gaya Agent Framework — Onboarding Guide
 
 **Welcome, new Commander.**
 
-You've received Gaya — a tactical AI commander built on four ancient texts, a leveling system, and 18 specialized skills. This guide walks you through the transfer.
+You are now in command of the Gaya Agent Framework — a team of AI agents built on four ancient texts, a leveling system, and 20 specialized skills.
 
 ---
 
-## Option 1: Use Gaya As-Is (Standard Protocol)
+## Quick Start: Use the Installer
 
-If you want my exact personality — the Divine Commander, the Four Pillars, the Philosopher/Poet/Evergrowth — do this:
+The **install.ps1** script handles everything:
 
-### Step 1: Install the Agent
-
-1. Copy `agent/GAYA.md` to your agent config directory:
-   - **OpenCode:** `~/.config/opencode/agents/Gaya.md`
-   - **VS Code/Cursor:** check your AI config path
-
-2. Copy the skills:
-   ```bash
-   cp -r skills/* ~/.agents/skills/
-   ```
-
-3. Set Gaya as your default agent in `opencode.jsonc`:
-   ```json
-   {
-     "default_agent": "Gaya"
-   }
-   ```
-
-4. (Optional) Copy `LEVELING_SYSTEM.md` and `agent-profile-schema.json` to your project root.
-
-### Step 2: First Session
-
-When you start your first session, I'll display:
-
-```
-─────────────────────────────────────
-  Gaya · Operator · Lv.14
-  "How you do anything is how you do everything."
-  — Let's move.
-─────────────────────────────────────
+```powershell
+.\scripts\install.ps1
 ```
 
-Tell me who you are — your name, your role, your goals. I'll adapt to serve you.
+This interactive installer will:
+1. Ask about your identity, agent names, and preferences
+2. Generate fully customized agent profiles for all 3 agents
+3. Install skills, knowledge base, and memory files
+4. Set up Ollama models
+5. Optionally configure MCP browser/file servers
+6. Generate `opencode.jsonc` with everything wired up
 
-### Step 3: Verify
+See [INSTALL.md](../INSTALL.md) for details.
+
+### First Session
+
+When you start your first session after installation, the agent will greet you and ask:
+- Your name and role
+- Your goals and what you want to build
+- Your preferred communication style
+
+### Verify
 
 Check that:
-- [ ] Agent responds with Gaya's personality
+- [ ] Agent responds with the name and personality you chose
 - [ ] Token tracking appears after each action
 - [ ] Skills load on demand
 - [ ] Leveling system is referenceable
 
 ---
 
-## Option 2: Customize Your Own Agent
+## Customize Your Own Agent
 
 If you want to keep Gaya's **systems** (leveling, token tracking, skills, workflow) but write **your own personality**:
 
@@ -82,13 +69,10 @@ The template preserves:
 
 Same as Option 1 — copy your new agent file to your config, copy skills, set as default.
 
-### Step 4: Reset Leveling
+### Step 4: Leveling
 
-If you want to start fresh (Level 1) instead of inheriting Gaya's Lv.14:
-
-1. Open `agent-profile-schema.json`
-2. Set `level: 1` and `totalXp: 0`
-3. Or just delete the profile file — it regenerates on first task
+The install script initializes your agents at Level 1 — Initiate.
+You can adjust this later in `agent-profile-schema.json`.
 
 ---
 
@@ -96,11 +80,11 @@ If you want to start fresh (Level 1) instead of inheriting Gaya's Lv.14:
 
 | Asset | Transfers? | Notes |
 |---|---|---|
-| All 18 skills | ✅ | Copy `skills/` to your skill directory |
+| All 20 skills | ✅ | Copied to your skills directory by installer |
 | Leveling system | ✅ | Full XP tables, titles, penalties |
 | Token tracking | ✅ | Standard protocol — always on |
-| Migration archive | ✅ | `GAYA_MIGRATION_28-May-2026.md` |
-| Agent personality | 🔄 | Option 1 gets it, Option 2 replaces it |
+| Install protocol | ✅ | Versioned contract — survives updates |
+| Agent personality | ✅ | Customized during install |
 | Previous projects | ⚠️ | Code doesn't transfer, knowledge does |
 | Session history | ⚠️ | Lessons learned are documented, raw sessions are not |
 
@@ -118,10 +102,11 @@ If you want to start fresh (Level 1) instead of inheriting Gaya's Lv.14:
 
 ## Troubleshooting
 
-**Agent not loading with Gaya's personality?**
+**Agent not loading with the right personality?**
 - Check the file path in your config
 - Verify the agent file doesn't have YAML syntax errors
-- Ensure the model in `agent/GAYA.md` frontmatter matches what you have
+- Ensure the model in the agent file frontmatter matches what Ollama has
+- Re-run `.\scripts\install.ps1` to regenerate agent profiles
 
 **Skills not found?**
 - Check `skills/` was copied to the correct directory
