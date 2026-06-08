@@ -22,7 +22,7 @@ Gaya is a coding agent persona that operates as **Commander, Philosopher, Poet, 
 git clone https://github.com/ronakraval104-sys/Gaya_Agent_PR.git ~/.config/opencode
 ```
 
-This installs Gaya's config, persona, and memory files directly into your OpenCode configuration directory.
+This installs Gaya's config, persona, memory files, and **22 skills** directly into your OpenCode configuration directory.
 
 > **Note:** This will overwrite your existing `opencode.jsonc`. Back up your current config first if you have one.
 
@@ -136,10 +136,58 @@ An agentic skills framework that adds:
 ### Architecture Diagram (konraddzbik)
 Build interactive, click-through system architecture diagrams as single HTML files with animated data flows.
 
-**Install:**
-```bash
-git clone https://github.com/konraddzbik/architecture-diagram-skill ~/.config/opencode/skills/architecture-diagram
-```
+Already included in `skills/architecture-diagram/`.
+
+---
+
+## Included Skills (22)
+
+Gaya ships with a library of specialized skills, all in `skills/`. OpenCode discovers them automatically.
+
+| Skill | What It Does |
+|---|---|
+| **3d-visualizer** | Three.js, 3D graphics, interactive 3D visualizations |
+| **3ds-max-bridge** | 3ds Max HTTP bridge for automation |
+| **architecture-diagram** | Interactive system architecture diagrams with animated flows |
+| **archviz-optimizer** | Unreal Engine ArchViz optimization (draw calls, LODs, Nanite/Lumen) |
+| **building-ui-bundle-frontend** | UI bundle frontend editing conventions |
+| **comfyui-workflow-builder** | Build ComfyUI workflow JSON from natural language |
+| **consulting-analysis** | Professional research reports, market analysis |
+| **creative-proposal-builder** | ArchViz/VR/UE5 consulting scopes and pricing |
+| **data-storytelling** | Transform data into compelling narratives |
+| **digital-twin-generation** | Photorealistic digital twins and avatar clones |
+| **frontend-design** | Production-grade web UI with high design quality |
+| **game-design-theory** | MDA framework, player psychology, balance principles |
+| **gepeto** | Build 1-click launchers with Pinokio |
+| **grill-me** | Stress-test plans and designs with relentless questioning |
+| **image-generation** | AI image generation prompts (DALL-E, Midjourney, SD) |
+| **image-to-video** | Animate still images via RunComfy |
+| **improve-codebase-architecture** | Find refactoring opportunities, decouple modules |
+| **pinokio** | Discover, launch, and use apps and tools |
+| **pipeline-troubleshooter** | Fix CUDA errors, VAE mismatches, Conda issues |
+| **pptx** | Create, edit, and parse PowerPoint files |
+| **ui-ux-pro-max** | 50+ styles, 161 palettes, 57 font pairings, UX guidelines |
+| **unreal-engine-cpp-pro** | UE5 C++ best practices, UObject hygiene |
+
+### Plugin-Installed Skills (from Superpowers)
+These come via the Superpowers plugin and are available automatically:
+
+| Skill | What It Does |
+|---|---|
+| **brainstorming** | Socratic design refinement before coding |
+| **test-driven-development** | RED-GREEN-REFACTOR cycle |
+| **systematic-debugging** | 4-phase root cause process |
+| **writing-plans** | Detailed implementation plans |
+| **executing-plans** | Batch execution with checkpoints |
+| **subagent-driven-development** | Fast iteration with two-stage review |
+| **requesting-code-review** | Pre-review checklist |
+| **receiving-code-review** | Responding to feedback |
+| **using-git-worktrees** | Parallel development branches |
+| **dispatching-parallel-agents** | Concurrent subagent workflows |
+| **finishing-a-development-branch** | Merge/PR decision workflow |
+| **verification-before-completion** | Confirm fixes before declaring done |
+| **writing-skills** | Create new skills following best practices |
+| **using-superpowers** | Introduction to the skills system |
 
 ---
 
@@ -170,7 +218,7 @@ Titles unlock as you level. Streaks track reliability. Achievements mark milesto
 ├── memory/
 │   ├── PROJECT_DOMAIN_LAWS.md      ← Non-negotiable constraints
 │   └── PROJECT_GOTCHAS.md          ← Lessons learned
-├── skills/                         ← (created by you via skill installs)
+├── skills/                         ← 22 pre-installed skills (3D, PPTX, UI/UX, Unreal, etc.)
 ├── README.md
 ├── LICENSE
 └── .gitignore
