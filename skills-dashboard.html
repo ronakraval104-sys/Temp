@@ -3,244 +3,260 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gaya Skill Constellation</title>
+<title>Gaya Agent — Skills Dashboard</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{
-  background:#080c18;color:#e2e8f0;overflow:hidden;height:100vh;width:100vw;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;
-  user-select:none;
-}
-canvas{display:block;position:fixed;inset:0;touch-action:none}
+/* ══════════════════════════════════════
+   RESET + BASE
+   ══════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#070b15;color:#e2e8f0;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden}
+body{display:flex;flex-direction:column}
 
-/* ── Top bar ── */
-#topbar{
-  position:fixed;top:0;left:0;right:0;z-index:20;
-  padding:14px 22px;display:flex;align-items:center;gap:14px;
-  background:linear-gradient(180deg,rgba(8,12,24,.92) 50%,transparent);
-  pointer-events:none;
-}
-#topbar>*{pointer-events:auto}
-#topbar h1{
-  font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
-  background:linear-gradient(135deg,#c084fc,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
-}
-#topbar .count{font-size:10px;color:#64748b}
-#topbar .count strong{color:#94a3b8}
-.spacer{flex:1}
+/* ══════════════════════════════════════
+   SCROLLBAR
+   ══════════════════════════════════════ */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#1e293b;border-radius:3px}
 
-#search{
-  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);
-  border-radius:20px;padding:4px 12px 4px 28px;font-size:10px;color:#e2e8f0;
-  outline:none;width:120px;transition:.3s;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:9px center;
+/* ══════════════════════════════════════
+   HEADER
+   ══════════════════════════════════════ */
+header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 24px;border-bottom:1px solid rgba(255,255,255,0.06);
+  flex-shrink:0;gap:16px;flex-wrap:wrap;
+  background:linear-gradient(180deg,rgba(15,23,42,0.95) 0%,rgba(7,11,21,0.98) 100%);
+  backdrop-filter:blur(12px);position:relative;z-index:10
 }
-#search:focus{border-color:#c084fc;width:160px;background-color:rgba(255,255,255,.07);}
-#search::placeholder{color:#64748b;font-size:10px}
+header h1{
+  font-size:18px;font-weight:700;letter-spacing:-0.02em;
+  background:linear-gradient(135deg,#a78bfa,#c084fc);-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;white-space:nowrap
+}
+header h1 span{font-weight:400;opacity:0.5;-webkit-text-fill-color:#94a3b8}
+.hdr-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 
-/* ── Zoom controls ── */
-#zoomctrl{
-  position:fixed;z-index:20;bottom:90px;right:20px;
-  display:flex;flex-direction:column;gap:4px;
+/* Search */
+.srch-wrap{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);
+  border-radius:8px;padding:6px 12px;transition:border .2s,background .2s;width:200px
 }
-#zoomctrl button{
-  width:32px;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,.06);
-  background:rgba(8,12,24,.75);backdrop-filter:blur(8px);
-  color:#94a3b8;font-size:16px;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;
+.srch-wrap:focus-within{border-color:rgba(167,139,250,0.4);background:rgba(255,255,255,0.07)}
+.srch-wrap svg{flex-shrink:0;opacity:0.4}
+.srch-wrap input{
+  background:none;border:none;outline:none;color:#e2e8f0;
+  font-size:13px;font-family:inherit;width:100%
 }
-#zoomctrl button:hover{background:rgba(255,255,255,.08);color:#e2e8f0}
-#zoomctrl .zlvl{font-size:9px;color:#475569;text-align:center;padding:2px 0;font-variant-numeric:tabular-nums}
+.srch-wrap input::placeholder{color:#475569}
 
-/* ── Filters ── */
-#filters{
-  position:fixed;z-index:20;
-  bottom:20px;left:50%;transform:translateX(-50%);
-  display:flex;gap:4px;flex-wrap:wrap;justify-content:center;
-  background:rgba(8,12,24,.7);backdrop-filter:blur(16px);
-  padding:6px 12px;border-radius:20px;
-  border:1px solid rgba(255,255,255,.04);
-  max-width:92vw;
+/* Count badge */
+.cnt-bdg{
+  font-size:12px;color:#94a3b8;background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:4px 10px;white-space:nowrap
+}
+
+/* ══════════════════════════════════════
+   FILTERS
+   ══════════════════════════════════════ */
+.filters{
+  display:flex;align-items:center;gap:6px;flex-shrink:0;
+  padding:10px 24px;border-bottom:1px solid rgba(255,255,255,0.04);
+  overflow-x:auto;flex-wrap:nowrap;background:rgba(7,11,21,0.6)
 }
 .fbtn{
-  font-size:9px;padding:3px 11px;border-radius:14px;letter-spacing:.2px;
-  border:1px solid transparent;background:transparent;color:#64748b;
-  cursor:pointer;transition:.2s;font-family:inherit;white-space:nowrap;
+  font-size:12px;font-weight:500;padding:5px 12px;border-radius:6px;
+  border:1px solid rgba(255,255,255,0.06);background:transparent;color:#94a3b8;
+  cursor:pointer;white-space:nowrap;transition:all .15s;
+  font-family:inherit;user-select:none
 }
-.fbtn:hover{background:rgba(255,255,255,.06);color:#94a3b8}
-.fbtn.on{background:rgba(192,132,252,.12);border-color:rgba(192,132,252,.25);color:#c084fc}
+.fbtn:hover{border-color:rgba(167,139,250,0.3);color:#c4b5fd}
+.fbtn.on{background:rgba(167,139,250,0.15);border-color:rgba(167,139,250,0.35);color:#a78bfa}
+.fbtn-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.fbtn-sp{color:#fbbf24}.fbtn-sp.on{background:rgba(251,191,36,0.12);border-color:rgba(251,191,36,0.3);color:#fbbf24}
+.fbtn-cu{color:#34d399}.fbtn-cu.on{background:rgba(52,211,153,0.12);border-color:rgba(52,211,153,0.3);color:#34d399}
 
-/* ── Info panel ── */
-#ip{
-  position:fixed;z-index:15;
-  bottom:0;left:0;right:0;
-  background:linear-gradient(0deg,rgba(8,12,24,.96) 60%,transparent);
-  padding:50px 28px 80px;
-  transform:translateY(100%);transition:transform .4s cubic-bezier(.22,1,.36,1);
-  pointer-events:none;
+/* ══════════════════════════════════════
+   GRID
+   ══════════════════════════════════════ */
+.main-scroll{flex:1;overflow-y:auto;padding:20px 24px 32px}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:12px
 }
-#ip.open{transform:translateY(0);pointer-events:auto}
-#ip .in{max-width:500px;margin:0 auto}
-#ip .hd{display:flex;align-items:center;gap:10px;margin-bottom:4px}
-#ip .nm{font-size:16px;font-weight:700;color:#e2e8f0}
-#ip .bdg{font-size:8px;padding:2px 8px;border-radius:8px;font-weight:600;letter-spacing:.5px}
-#ip .ct{font-size:9px;color:#64748b;margin-bottom:3px}
-#ip .ds{font-size:12px;line-height:1.5;color:#94a3b8;margin-bottom:4px}
-#ip .mt{font-size:9px;color:#475569;font-family:monospace}
-#ip .cl{position:absolute;top:24px;right:24px;background:none;border:none;
-  color:#64748b;cursor:pointer;font-size:18px;transition:.2s}
-#ip .cl:hover{color:#e2e8f0}
 
-/* ── Legend ── */
-#lgd{
-  position:fixed;z-index:18;
-  right:10px;top:60px;
-  display:flex;flex-direction:column;gap:3px;
+/* ══════════════════════════════════════
+   SKILL CARD
+   ══════════════════════════════════════ */
+.card{
+  position:relative;border-radius:10px;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);
+  padding:16px;cursor:pointer;transition:all .2s;user-select:none
 }
-.lit{
-  display:flex;align-items:center;gap:6px;
-  font-size:8px;color:#475569;cursor:pointer;
-  padding:2px 6px;border-radius:4px;transition:.2s;
-  writing-mode:vertical-lr;text-orientation:mixed;
-  letter-spacing:.8px;
+.card:hover{
+  background:rgba(255,255,255,0.06);border-color:rgba(167,139,250,0.25);
+  transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,0,0,0.3)
 }
-.lit:hover{color:#94a3b8;background:rgba(255,255,255,.03)}
-.lit .dt{width:3px;height:10px;border-radius:2px;flex-shrink:0}
+.card:active{transform:translateY(0);background:rgba(255,255,255,0.04)}
+.card-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.card-icon{font-size:22px;line-height:1;flex-shrink:0}
+.card-name{
+  font-size:13px;font-weight:600;color:#e2e8f0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap
+}
+.card-desc{
+  font-size:11.5px;color:#64748b;line-height:1.5;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden
+}
+.card-btm{display:flex;align-items:center;gap:6px;margin-top:10px;flex-wrap:wrap}
+.card-tag{
+  font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px;
+  text-transform:uppercase;letter-spacing:0.03em;line-height:1.4
+}
 
-/* ── Empty state ── */
-#empty{
-  position:fixed;z-index:5;top:50%;left:50%;transform:translate(-50%,-50%);
-  text-align:center;pointer-events:none;opacity:0;transition:.4s;pointer-events:none;
+/* ══════════════════════════════════════
+   INFO PANEL
+   ══════════════════════════════════════ */
+.panel-overlay{
+  position:fixed;inset:0;z-index:50;background:rgba(0,0,0,0.5);
+  opacity:0;pointer-events:none;transition:opacity .3s
 }
-#empty.sh{opacity:1}
-#empty .ei{font-size:28px;margin-bottom:6px;opacity:.5}
-#empty p{font-size:12px;color:#64748b}
+.panel-overlay.open{opacity:1;pointer-events:auto}
+.panel{
+  position:fixed;top:0;right:0;bottom:0;width:380px;max-width:100vw;z-index:51;
+  background:linear-gradient(180deg,#0f172a 0%,#070b15 100%);
+  border-left:1px solid rgba(255,255,255,0.06);
+  transform:translateX(100%);transition:transform .35s cubic-bezier(.22,1,.36,1);
+  display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:-8px 0 40px rgba(0,0,0,0.5)
+}
+.panel.open{transform:translateX(0)}
+.phead{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 24px 16px;border-bottom:1px solid rgba(255,255,255,0.06);flex-shrink:0
+}
+.phead h2{font-size:18px;font-weight:700}
+.phead .p-icon{font-size:24px;margin-right:8px}
+.pcls{
+  background:none;border:none;color:#64748b;cursor:pointer;padding:4px;border-radius:4px;
+  transition:color .15s
+}
+.pcls:hover{color:#e2e8f0}
+.pbody{padding:20px 24px;overflow-y:auto;flex:1}
+.pcat{
+  font-size:11px;text-transform:uppercase;letter-spacing:0.04em;font-weight:600;
+  color:#a78bfa;margin-bottom:4px
+}
+.ptype{
+  display:inline-block;font-size:10px;font-weight:500;padding:2px 8px;border-radius:4px;
+  margin-bottom:14px;text-transform:uppercase;letter-spacing:0.03em
+}
+.pdesc{
+  font-size:14px;line-height:1.7;color:#94a3b8;margin-bottom:20px
+}
+.ptags{
+  display:flex;flex-wrap:wrap;gap:6px;margin-bottom:24px
+}
+.ptag{
+  font-size:11px;padding:3px 10px;border-radius:4px;
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);color:#64748b
+}
+.ppath{
+  font-size:12px;color:#475569;padding:10px 12px;
+  background:rgba(0,0,0,0.2);border-radius:6px;word-break:break-all;
+  font-family:'SF Mono',Consolas,'Courier New',monospace
+}
+.ppath-label{font-size:11px;color:#475569;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.03em}
 
-@media(max-width:640px){
-  #topbar{padding:10px 12px;gap:8px}
-  #search{width:80px;font-size:9px}
-  #filters{padding:4px 8px;gap:3px;bottom:12px}
-  .fbtn{font-size:8px;padding:2px 8px}
-  #ip{padding:40px 16px 70px}
-  #zoomctrl{bottom:80px;right:10px}
-  #zoomctrl button{width:28px;height:28px;font-size:14px}
-  #lgd{right:4px;top:52px}
-  .lit{font-size:7px}
+/* ══════════════════════════════════════
+   EMPTY STATE
+   ══════════════════════════════════════ */
+.empty{
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  padding:60px 24px;text-align:center;grid-column:1/-1
 }
+.empty.sh{display:flex}
+.empty svg{margin-bottom:16px;opacity:0.2}
+.empty p{font-size:14px;color:#475569}
+
+/* ══════════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════════ */
+@media(max-width:900px){
+  header{padding:12px 16px}
+  header h1{font-size:16px}
+  .srch-wrap{width:160px}
+  .filters{padding:8px 16px;gap:4px}
+  .main-scroll{padding:12px 16px 24px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+  .panel{width:100%}
+}
+@media(max-width:500px){
+  header h1{font-size:14px;width:100%}
+  .hdr-right{width:100%}.srch-wrap{flex:1}
+  .grid{grid-template-columns:1fr 1fr;gap:8px}
+  .card{padding:12px}.card-icon{font-size:18px}.card-name{font-size:12px}
+}
+@media(max-width:380px){.grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<canvas id="c"></canvas>
 
-<div id="topbar">
-  <h1>✦ Gaya</h1>
-  <span class="count"><strong id="vcount">36</strong> skills</span>
-  <div class="spacer"></div>
-  <input id="search" placeholder="Search..." autocomplete="off">
+<!-- ═══ HEADER ═══ -->
+<header>
+  <h1>✦ Gaya<span>·skills</span></h1>
+  <div class="hdr-right">
+    <div class="srch-wrap">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input id="search" type="text" placeholder="Search skills…" spellcheck="false" autocomplete="off">
+    </div>
+    <div class="cnt-bdg"><span id="vcount">36</span> / 36</div>
+  </div>
+</header>
+
+<!-- ═══ FILTERS ═══ -->
+<div class="filters" id="filters">
+  <button class="fbtn on" data-f="all">All</button>
+  <button class="fbtn fbtn-sp" data-f="superpowers">★ Superpowers</button>
+  <button class="fbtn fbtn-cu" data-f="custom">● Custom</button>
 </div>
 
-<div id="zoomctrl">
-  <button id="zpi">＋</button>
-  <button id="zre">⟲</button>
-  <button id="zmo">−</button>
-  <span class="zlvl" id="zlvl">100%</span>
-</div>
-
-<div id="lgd"></div>
-
-<div id="ip">
-  <button class="cl" id="pcl">✕</button>
-  <div class="in">
-    <div class="hd"><span class="nm" id="pn"></span><span class="bdg" id="pb"></span></div>
-    <div class="ct" id="pc"></div>
-    <div class="ds" id="pd"></div>
-    <div class="mt" id="pm"></div>
+<!-- ═══ MAIN GRID ═══ -->
+<div class="main-scroll" id="scroll">
+  <div class="grid" id="grid">
+    <div class="empty sh" id="empty">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <p>No skills match your search</p>
+    </div>
   </div>
 </div>
 
-<div id="filters">
-  <button class="fbtn on" data-f="all">All</button>
-  <button class="fbtn" data-f="creation">🎨 Creation</button>
-  <button class="fbtn" data-f="dev">⚙️ Dev</button>
-  <button class="fbtn" data-f="process">🔁 Process</button>
-  <button class="fbtn" data-f="quality">🔍 Quality</button>
-  <button class="fbtn" data-f="business">📊 Business</button>
-  <button class="fbtn" data-f="special">🛠 Specialist</button>
-  <button class="fbtn" data-f="superpowers">⚡ Super</button>
-  <button class="fbtn" data-f="custom">🧩 Custom</button>
-</div>
+<!-- ═══ PANEL OVERLAY ═══ -->
+<div class="panel-overlay" id="ovr"></div>
 
-<div id="empty"><div class="ei">🔭</div><p>No skills match</p></div>
+<!-- ═══ INFO PANEL ═══ -->
+<div class="panel" id="panel">
+  <div class="phead">
+    <h2><span class="p-icon" id="picon"></span><span id="pname"></span></h2>
+    <button class="pcls" id="pcls" aria-label="Close">✕</button>
+  </div>
+  <div class="pbody">
+    <div class="pcat" id="pcat"></div>
+    <div class="ptype" id="ptype"></div>
+    <div class="pdesc" id="pdesc"></div>
+    <div class="ptags" id="ptags"></div>
+    <div class="ppath-label">Path</div>
+    <div class="ppath" id="ppath"></div>
+  </div>
+</div>
 
 <script>
 // ═══════════════════════════════════════════════════
-// SKILL DATA
+// DATA
 // ═══════════════════════════════════════════════════
 const S={
-  "c3d":{n:"3D Visualizer",i:"🌐",c:"creation",t:"Custom",
-    d:"Three.js, WebGL, interactive 3D visualizations for web.",
-    p:"skills/3d-visualizer/",g:["three.js","webgl","3d"]},
-  "cui":{n:"UI Bundle Frontend",i:"🖥",c:"dev",t:"Custom",
-    d:"Shadcn/ui + Tailwind Salesforce uiBundle projects. AppLayout.tsx shell.",
-    p:"skills/building-ui-bundle-frontend/",g:["salesforce","react","shadcn"]},
-  "ccf":{n:"ComfyUI Workflows",i:"🔧",c:"creation",t:"Custom",
-    d:"ComfyUI workflow JSON from natural language. txt2img, ControlNet, LoRA.",
-    p:"skills/comfyui-workflow-builder/",g:["comfyui","stable-diffusion","workflow"]},
-  "cca":{n:"Consulting Analysis",i:"📈",c:"business",t:"Custom",
-    d:"Two-phase research: market analysis, competitive intelligence.",
-    p:"skills/consulting-analysis/",g:["consulting","research","strategy"]},
-  "cds":{n:"Data Storytelling",i:"📊",c:"business",t:"Custom",
-    d:"Turns data into narratives with visualization and persuasive structure.",
-    p:"skills/data-storytelling/",g:["data","visualization","narrative"]},
-  "cdt":{n:"Digital Twin",i:"👤",c:"business",t:"Custom",
-    d:"Photorealistic avatars via each::sense AI. Video calls, corporate comms.",
-    p:"skills/digital-twin-generation/",g:["avatar","ai-video","digital-twin"]},
-  "cfd":{n:"Frontend Design",i:"🎨",c:"creation",t:"Custom",
-    d:"Production-grade UI. High design quality, no generic AI aesthetics.",
-    p:"skills/frontend-design/",g:["ui","design","react","css"]},
-  "cgt":{n:"Game Design Theory",i:"🎮",c:"special",t:"Custom",
-    d:"MDA framework, player psychology, balance, progression systems.",
-    p:"skills/game-design-theory/",g:["gamedev","mda","psychology"]},
-  "cgp":{n:"Gepeto / Pinokio",i:"🚀",c:"special",t:"Custom",
-    d:"1-click launchers and apps with built-in Pinokio launcher.",
-    p:"skills/gepeto/",g:["pinokio","launcher","1-click","automation"]},
-  "cgm":{n:"Grill Me",i:"🔥",c:"process",t:"Custom",
-    d:"Relentless plan interrogation until shared understanding.",
-    p:"skills/grill-me/",g:["planning","questioning","stress-test"]},
-  "cig":{n:"Image Generation",i:"🖼",c:"creation",t:"Custom",
-    d:"DALL-E / Midjourney / SD prompt engineering across styles.",
-    p:"skills/image-generation/",g:["prompting","midjourney","dalle"]},
-  "civ":{n:"Image to Video",i:"🎬",c:"creation",t:"Custom",
-    d:"Animate stills on RunComfy. HappyHorse, Wan 2.7, Seedance.",
-    p:"skills/image-to-video/",g:["i2v","animation","runcomfy"]},
-  "cia":{n:"Architecture Deepen",i:"🏗",c:"dev",t:"Custom",
-    d:"Refactoring, decoupling, making codebases AI-navigable.",
-    p:"skills/improve-codebase-architecture/",g:["refactoring","architecture","modularity"]},
-  "cpn":{n:"Pinokio Launcher",i:"⚡",c:"special",t:"Custom",
-    d:"Discover, launch, manage apps from the Pinokio ecosystem.",
-    p:"skills/pinokio/",g:["pinokio","launch","discovery"]},
-  "cpt":{n:"Pipeline Troubleshooter",i:"🔍",c:"dev",t:"Custom",
-    d:"CUDA errors, VAE mismatches, Conda fixes, ComfyUI issues.",
-    p:"skills/pipeline-troubleshooter/",g:["debugging","cuda","comfyui"]},
-  "cpx":{n:"PowerPoint (pptx)",i:"📑",c:"business",t:"Custom",
-    d:"Create, read, edit, merge decks. Templates, notes, comments.",
-    p:"skills/pptx/",g:["powerpoint","slides","presentation"]},
-  "cux":{n:"UI/UX Pro Max",i:"✨",c:"creation",t:"Custom",
-    d:"50+ styles, 161 palettes, 57 font pairings, 99 UX guidelines.",
-    p:"skills/ui-ux-pro-max/",g:["ui","ux","design-system","color"]},
-  "cue":{n:"Unreal Engine C++",i:"🎯",c:"dev",t:"Custom",
-    d:"UE5 C++: UObject hygiene, performance, memory, patterns.",
-    p:"skills/unreal-engine-cpp-pro/",g:["unreal","cpp","ue5","performance"]},
-  "cav":{n:"ArchViz Optimizer",i:"🏛",c:"special",t:"Custom",
-    d:"UE5 ArchViz: draw calls, LODs, Nanite/Lumen for real estate.",
-    p:"skills/archviz-optimizer/",g:["archviz","unreal","nanite","lumen"]},
-  "ccp":{n:"Creative Proposal Builder",i:"📋",c:"business",t:"Custom",
-    d:"ArchViz/VR/UE5 consulting scopes, pricing, timelines.",
-    p:"skills/creative-proposal-builder/",g:["proposal","consulting","archviz"]},
-
-  "sus":{n:"Using Superpowers",i:"⚡",c:"process",t:"Superpowers",
-    d:"FOUNDATIONAL: invoke skills before ANY response. 1% = must.",
-    p:"skills/using-superpowers/",g:["foundation","gate","discipline"]},
   "sbr":{n:"Brainstorming",i:"💡",c:"process",t:"Superpowers",
     d:"Socratic design refinement. No implementation without spec.",
     p:"skills/brainstorming/",g:["planning","design","spec","dialogue"]},
@@ -271,441 +287,231 @@ const S={
   "svb":{n:"Verify Before Done",i:"✅",c:"quality",t:"Superpowers",
     d:"No completion claims without fresh test/lint/build evidence.",
     p:"skills/verification-before-completion/",g:["verification","testing","evidence"]},
-  "sfb":{n:"Finish Branch",i:"🏁",c:"process",t:"Superpowers",
-    d:"Merge, PR, keep, or discard. Safety confirmations, cleanup.",
-    p:"skills/finishing-a-development-branch/",g:["git","branch","merge","pr"]},
-  "spa":{n:"Parallel Agents",i:"🧩",c:"process",t:"Superpowers",
-    d:"Concurrent subagents for independent tasks. Speed through parallelism.",
-    p:"skills/dispatching-parallel-agents/",g:["parallel","concurrency","speed"]},
-  "sws":{n:"Writing Skills",i:"✏",c:"quality",t:"Superpowers",
-    d:"TDD for docs. No skill without failing test first.",
-    p:"skills/writing-skills/",g:["skill-creation","tdd","documentation"]},
-
-  "bad":{n:"Architecture Diagram",i:"📐",c:"dev",t:"Bonus",
-    d:"Interactive system diagrams. Animated flows, mode toggles, themes.",
-    p:"skills/architecture-diagram/",g:["diagram","architecture","flow"]},
-  "b3d":{n:"3ds Max Bridge",i:"🏗",c:"special",t:"Bonus",
-    d:"HTTP bridge for 3ds Max automation. Scene ops, render control.",
-    p:"skills/3ds-max-bridge/",g:["3ds-max","automation","bridge"]}
+  "sfc":{n:"Finish Branch",i:"🚀",c:"quality",t:"Superpowers",
+    d:"Implementation done. Choose merge, PR, or cleanup path.",
+    p:"skills/finishing-a-development-branch/",g:["completion","merge","pr"]},
+  "sdp":{n:"Dispatch Parallel",i:"⚡",c:"process",t:"Superpowers",
+    d:"Split 2+ independent tasks into parallel subagent work.",
+    p:"skills/dispatching-parallel-agents/",g:["parallel","subagent","efficiency"]},
+  "sba":{n:"Brainstorming Alt",i:"🧠",c:"process",t:"Superpowers",
+    d:"Alternative brainstorming: divergent→convergent→commit.",
+    p:"skills/brainstorming/",g:["planning","design","alternative"]},
+  "sgm":{n:"Grill Me",i:"🔥",c:"quality",t:"Superpowers",
+    d:"Stress-test a plan through relentless questioning. Fork until clear.",
+    p:"skills/grill-me/",g:["review","stress-test","clarity"]},
+  "uid":{n:"UI Design",i:"🎨",c:"creation",t:"Custom",
+    d:"Production-grade frontends. Unique, not templated.",
+    p:"skills/ui-ux-pro-max/",g:["ui","ux","frontend","design"]},
+  "fend":{n:"Frontend Design",i:"🖌",c:"creation",t:"Custom",
+    d:"Distinctive, production-grade interfaces with high design quality.",
+    p:"skills/frontend-design/",g:["frontend","design","html","css"]},
+  "bundle":{n:"UI Bundle Frontend",i:"🧩",c:"creation",t:"Custom",
+    d:"Modify existing UI bundle apps. appLayout, shadcn, Tailwind, Salesforce routing.",
+    p:"skills/building-ui-bundle-frontend/",g:["ui","bundle","salesforce","shadcn"]},
+  "3dv":{n:"3D Visualizer",i:"🌐",c:"creation",t:"Custom",
+    d:"Three.js expert. Interactive 3D scenes, models, animations.",
+    p:"skills/3d-visualizer/",g:["3d","three.js","visualization","webgl"]},
+  "arch":{n:"Architecture Diagram",i:"📐",c:"creation",t:"Custom",
+    d:"Interactive click-through system architecture diagrams. Single HTML file.",
+    p:"skills/architecture-diagram/",g:["architecture","diagram","flow","visualization"]},
+  "img":{n:"Image Generation",i:"🖼",c:"creation",t:"Custom",
+    d:"DALL-E, Midjourney, SD prompts for any style and use case.",
+    p:"skills/image-generation/",g:["image","prompt","generation","ai"]},
+  "i2v":{n:"Image to Video",i:"🎬",c:"creation",t:"Custom",
+    d:"Animate stills via RunComfy. Smart router for HappyHorse/Wan/Seedance.",
+    p:"skills/image-to-video/",g:["video","animation","runcomfy","ai"]},
+  "cf":{n:"ComfyUI Workflows",i:"⚙",c:"creation",t:"Custom",
+    d:"Generate node graphs from plain English. txt2img, ControlNet, LoRA, upscale.",
+    p:"skills/comfyui-workflow-builder/",g:["comfyui","workflow","stable-diffusion"]},
+  "dev":{n:"Dev Workflow",i:"💻",c:"dev",t:"Custom",
+    d:"Coding, debugging, scripting, automation across languages and frameworks.",
+    p:"skills/coding-expertise/",g:["code","script","automation","debug"]},
+  "cpp":{n:"Unreal Engine C++",i:"🎮",c:"dev",t:"Custom",
+    d:"UE5 C++: UObject hygiene, performance, best practices.",
+    p:"skills/unreal-engine-cpp-pro/",g:["unreal","cpp","game-dev","performance"]},
+  "arc":{n:"Architecture Improve",i:"🏗",c:"dev",t:"Custom",
+    d:"Find deepening opportunities. Consolidate, decouple, make testable.",
+    p:"skills/improve-codebase-architecture/",g:["architecture","refactor","cleanup"]},
+  "pin":{n:"Pinokio Launcher",i:"🚀",c:"dev",t:"Custom",
+    d:"Discover and launch apps via Pinokio. 1-click setup.",
+    p:"skills/pinokio/",g:["launcher","pinokio","setup"]},
+  "gep":{n:"Gepeto Builder",i:"📦",c:"dev",t:"Custom",
+    d:"Build 1-click launchers with Pinokio. Apps with launchers built-in.",
+    p:"skills/gepeto/",g:["launcher","pinokio","builder"]},
+  "pptx":{n:"PowerPoint Builder",i:"📊",c:"creation",t:"Custom",
+    d:"Create, read, edit, parse .pptx files. Decks, slides, templates.",
+    p:"skills/pptx/",g:["powerpoint","slides","presentation","office"]},
+  "dt":{n:"Digital Twin",i:"👤",c:"creation",t:"Custom",
+    d:"Photorealistic AI avatars via each::sense. Video calls, content, multilingual.",
+    p:"skills/digital-twin-generation/",g:["avatar","twin","ai","video"]},
+  "con":{n:"Consulting Analysis",i:"📈",c:"business",t:"Custom",
+    d:"Market analysis, competitive intel, investment due diligence. Consulting-grade.",
+    p:"skills/consulting-analysis/",g:["analysis","research","consulting","report"]},
+  "dst":{n:"Data Storytelling",i:"📖",c:"business",t:"Custom",
+    d:"Transform data into narratives. Visualization, context, persuasive structure.",
+    p:"skills/data-storytelling/",g:["data","storytelling","visualization","presentation"]},
+  "game":{n:"Game Design Theory",i:"🎲",c:"business",t:"Custom",
+    d:"MDA framework, player psychology, balance, progression. Why games are fun.",
+    p:"skills/game-design-theory/",g:["game","design","theory","psychology"]},
+  "viz":{n:"ArchViz Optimizer",i:"🏛",c:"special",t:"Custom",
+    d:"UE5 draw calls, LODs, Nanite/Lumen for real estate visualization.",
+    p:"skills/archviz-optimizer/",g:["archviz","unreal","optimization","real-estate"]},
+  "prop":{n:"Creative Proposals",i:"📋",c:"special",t:"Custom",
+    d:"ArchViz/VR/UE5 consulting scopes, pricing, and creative proposals.",
+    p:"skills/creative-proposal-builder/",g:["proposal","consulting","archviz","scope"]},
+  "pipe":{n:"Pipeline Troubleshooter",i:"🔧",c:"special",t:"Custom",
+    d:"CUDA errors, VAE mismatches, Conda fixes, environment diagnostics.",
+    p:"skills/pipeline-troubleshooter/",g:["troubleshooting","cuda","pipeline","environment"]},
+  "3ds":{n:"3ds Max Bridge",i:"🏗",c:"special",t:"Custom",
+    d:"3ds Max workflow automation, scene setup, export pipelines for UE5.",
+    p:"skills/3ds-max-bridge/",g:["3dsmax","unreal","workflow","automation"]}
 };
+
 const IDS=Object.keys(S);
 
-const E=[
-  ["sus","sbr"],["sbr","swp"],["swp","std"],["std","sgw"],["sgw","sep"],
-  ["sep","ssd"],["ssd","srq"],["srq","src"],["src","sdb"],["sdb","svb"],
-  ["svb","sfb"],["sfb","spa"],["spa","sbr"],
-  ["sbr","cfd"],["sbr","cux"],["sbr","c3d"],
-  ["swp","cui"],["swp","ccf"],["swp","civ"],
-  ["std","cia"],["std","cue"],
-  ["sep","cig"],["sep","ccf"],["sep","civ"],
-  ["srq","cui"],["srq","cfd"],
-  ["sdb","cpt"],["sdb","cia"],
-  ["svb","cue"],["svb","cpx"],
-  ["cfd","cux"],["cux","cui"],
-  ["c3d","cav"],["c3d","cue"],
-  ["cig","civ"],["cig","ccf"],
-  ["cca","cds"],["cca","ccp"],
-  ["cpx","cds"],["cdt","civ"],
-  ["cgp","cpn"],["cav","ccp"],
-  ["cgt","cux"],["cgm","cca"],
-  ["bad","c3d"],["bad","cia"],["bad","cca"],
-  ["b3d","cav"],["b3d","cue"],
-  ["sbr","bad"],["swp","b3d"]
-];
-
 const CAT={
-  creation:{clr:"#6366f1",lbl:"Creation"},
-  dev:{clr:"#22d3ee",lbl:"Dev"},
-  process:{clr:"#34d399",lbl:"Process"},
+  process:{clr:"#38bdf8",lbl:"Process"},
   quality:{clr:"#fbbf24",lbl:"Quality"},
-  business:{clr:"#c084fc",lbl:"Business"},
-  special:{clr:"#f472b6",lbl:"Specialist"}
+  creation:{clr:"#a78bfa",lbl:"Creation"},
+  dev:{clr:"#34d399",lbl:"Dev"},
+  business:{clr:"#f472b6",lbl:"Business"},
+  special:{clr:"#fb923c",lbl:"Specialist"}
 };
 const CAT_KEYS=Object.keys(CAT);
 
 // ═══════════════════════════════════════════════════
-// CANVAS + CAMERA
+// RENDER
 // ═══════════════════════════════════════════════════
-const cnv=document.getElementById('c');
-const ctx=cnv.getContext('2d');
-let W,H;
+const grid=document.getElementById('grid');
+const empty=document.getElementById('empty');
+const vcount=document.getElementById('vcount');
+const search=document.getElementById('search');
+const filters=document.getElementById('filters');
 
-let cam={x:0,y:0,z:1};
-let drag={active:false,lastX:0,lastY:0};
-let lastPinchDist=0;
+let activeFilter='all';
+let searchQ='';
 
-function resize(){
-  W=cnv.width=window.innerWidth;
-  H=cnv.height=window.innerHeight;
-}
-resize();
-window.addEventListener('resize',resize);
+function render(){
+  let html='';
+  let vis=0,tot=IDS.length;
 
-// ── Convert screen ↔ world ──
-function screenToWorld(sx,sy){
-  return{
-    x:(sx-W/2)/cam.z-cam.x,
-    y:(sy-H/2)/cam.z-cam.y
-  };
-}
-function worldToScreen(wx,wy){
-  return{
-    x:(wx+cam.x)*cam.z+W/2,
-    y:(wy+cam.y)*cam.z+H/2
-  };
-}
-
-// ── Zoom with fixed UI scale ──
-function setZoom(nz, cx, cy){
-  const prev=cam.z;
-  nz=Math.max(0.15,Math.min(6,nz));
-  if(cx===undefined)cx=W/2;
-  if(cy===undefined)cy=H/2;
-  const wx=(cx-W/2)/prev-cam.x;
-  const wy=(cy-H/2)/prev-cam.y;
-  cam.z=nz;
-  cam.x=-wx+(cx-W/2)/nz;
-  cam.y=-wy+(cy-H/2)/nz;
-  document.getElementById('zlvl').textContent=Math.round(cam.z*100)+'%';
-}
-function zoomAt(nz, cx, cy){setZoom(nz,cx,cy)}
-
-// ── Pan ──
-function pan(dx,dy){
-  cam.x+=dx/cam.z;
-  cam.y+=dy/cam.z;
-}
-
-// ═══════════════════════════════════════════════════
-// NODES
-// ═══════════════════════════════════════════════════
-const NODES={},NODES_A=[];
-let selId=null,hovId=null;
-let activeFilter='all',searchQ='';
-
-IDS.forEach(id=>{
-  const s=S[id];
-  NODES[id]={id,...s,x:0,y:0,vx:0,vy:0,tx:0,ty:0};
-  NODES_A.push(NODES[id]);
-});
-
-// Layout
-const RINGS={creation:160,dev:200,process:110,quality:140,business:220,special:240};
-const ANGLES={};
-CAT_KEYS.forEach((k,i)=>{ANGLES[k]=(i/CAT_KEYS.length)*Math.PI*2-Math.PI/2});
-
-function layout(){
-  const cnt={};CAT_KEYS.forEach(k=>cnt[k]=0);
-  NODES_A.forEach(n=>{if(n.c&&cnt[n.c]!==undefined)cnt[n.c]++});
-  const off={};CAT_KEYS.forEach(k=>off[k]=0);
-  NODES_A.forEach(n=>{
-    const c=n.c;if(!c||cnt[c]===undefined){n.tx=(Math.random()-.5)*300;n.ty=(Math.random()-.5)*300;return}
-    const i=off[c]++,pad=0.55;
-    const a=ANGLES[c]+(i/cnt[c])*Math.PI*pad-Math.PI*pad/2;
-    const r=RINGS[c]||160;
-    n.tx=Math.cos(a)*(r+(Math.random()-.5)*16);
-    n.ty=Math.sin(a)*(r+(Math.random()-.5)*16);
-  });
-}
-layout();
-
-// ═══════════════════════════════════════════════════
-// PARTICLES
-// ═══════════════════════════════════════════════════
-const PTS=[];
-for(let i=0;i<60;i++)PTS.push({
-  x:Math.random()*W,y:Math.random()*H,
-  r:Math.random()*1.5+0.5,
-  a:Math.random()*0.5+0.2,
-  vx:(Math.random()-.5)*0.3,
-  vy:(Math.random()-.5)*0.3
-});
-
-let time=0;
-
-// ═══════════════════════════════════════════════════
-// RENDER LOOP
-// ═══════════════════════════════════════════════════
-function draw(){
-  time++;
-
-  // ── Clear with background gradient ──
-  ctx.clearRect(0,0,W,H);
-  const bg=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,Math.max(W,H)*0.7);
-  bg.addColorStop(0,'#0f172a');bg.addColorStop(1,'#020617');
-  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
-
-  // ── Particles ──
-  PTS.forEach(p=>{
-    p.x+=p.vx;p.y+=p.vy;
-    if(p.x>W)p.x=0;if(p.x<0)p.x=W;
-    if(p.y>H)p.y=0;if(p.y<0)p.y=H;
-    ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-    ctx.fillStyle=`rgba(192,132,252,${p.a})`;ctx.fill();
-  });
-
-  // ── Determine visible nodes ──
-  const vis={};
-  let visC=0;
-  NODES_A.forEach(n=>{
-    let v=true;
+  for(const id of IDS){
+    const s=S[id];
+    let show=true;
     if(activeFilter!=='all'){
-      if(activeFilter==='superpowers'&&n.t!=='Superpowers')v=false;
-      else if(activeFilter==='custom'&&n.t!=='Custom')v=false;
-      else if(activeFilter!=='superpowers'&&activeFilter!=='custom'&&n.c!==activeFilter)v=false;
+      if(activeFilter==='superpowers'&&s.t!=='Superpowers')show=false;
+      else if(activeFilter==='custom'&&s.t!=='Custom')show=false;
+      else if(activeFilter!=='superpowers'&&activeFilter!=='custom'&&s.c!==activeFilter)show=false;
     }
     if(searchQ){
       const q=searchQ.toLowerCase();
-      if(!n.n.toLowerCase().includes(q)&&!n.d.toLowerCase().includes(q)&&!n.g.some(g=>g.includes(q)))v=false;
+      if(!s.n.toLowerCase().includes(q)&&!s.d.toLowerCase().includes(q)&&!s.g.some(g=>g.includes(q)))show=false;
     }
-    vis[n.id]=v;
-    if(v)visC++;
+    if(!show)continue;
+    vis++;
+
+    const clr=CAT[s.c]?CAT[s.c].clr:'#64748b';
+    const tagBg=clr+'20';
+    html+=`<div class="card" data-id="${id}" tabindex="0" role="button" aria-label="${s.n}">
+      <div class="card-top">
+        <span class="card-icon">${s.i}</span>
+        <span class="card-name">${s.n}</span>
+      </div>
+      <div class="card-desc">${s.d}</div>
+      <div class="card-btm">
+        <span class="card-tag" style="background:${tagBg};color:${clr}">${s.c}</span>
+        <span class="card-tag" style="background:rgba(255,255,255,0.04);color:#64748b">${s.t}</span>
+      </div>
+    </div>`;
+  }
+
+  grid.innerHTML=html+empty.outerHTML;
+  document.querySelectorAll('.card').forEach(el=>{
+    el.addEventListener('click',()=>showInfo(el.dataset.id));
+    el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')showInfo(el.dataset.id)});
   });
-  document.getElementById('vcount').textContent=visC;
-  document.getElementById('empty').classList.toggle('sh',visC===0);
+  empty.classList.toggle('sh',vis===0);
+  vcount.textContent=vis;
+}
 
-  // ── Build visible list for edge culling ──
-  const vIds=IDS.filter(id=>vis[id]);
-
-  // ── Edges ──
-  E.forEach(([s,t])=>{
-    const a=NODES[s],b=NODES[t];
-    if(!a||!b||!vis[s]||!vis[t])return;
-    // Fast cull: only draw if visible in viewport (with margin)
-    const p1=worldToScreen(a.x,a.y),p2=worldToScreen(b.x,b.y);
-    const margin=100;
-    if(p1.x<-margin&&p2.x<-margin||p1.x>W+margin&&p2.x>W+margin||
-       p1.y<-margin&&p2.y<-margin||p1.y>H+margin&&p2.y>H+margin)return;
-    
-    const dx=b.x-a.x,dy=b.y-a.y;
-    const dist=Math.sqrt(dx*dx+dy*dy);
-    if(dist<1)return;
-    const r=22;
-    const sx=a.x+(dx/dist)*r,sy=a.y+(dy/dist)*r;
-    const tx=b.x-(dx/dist)*r,ty=b.y-(dy/dist)*r;
-    
-    const s1=worldToScreen(sx,sy),s2=worldToScreen(tx,ty);
-    const active=(hovId&&(s===hovId||t===hovId))||(selId&&(s===selId||t===selId));
-    
-    ctx.beginPath();ctx.moveTo(s1.x,s1.y);ctx.lineTo(s2.x,s2.y);
-    ctx.strokeStyle=active?`rgba(192,132,252,0.35)`:`rgba(255,255,255,0.04)`;
-    ctx.lineWidth=active?1.5:0.6;ctx.stroke();
-  });
-
-  // ── Category rings ──
+// ═══════════════════════════════════════════════════
+// FILTERS
+// ═══════════════════════════════════════════════════
+// Build filter pills dynamically: All | Superpowers | Custom | [categories]
+function buildFilters(){
+  let fhtml='';
+  fhtml+=`<button class="fbtn on" data-f="all">All</button>`;
+  fhtml+=`<button class="fbtn fbtn-sp" data-f="superpowers">★ Superpowers</button>`;
+  fhtml+=`<button class="fbtn fbtn-cu" data-f="custom">● Custom</button>`;
+  // Divider
+  fhtml+=`<span style="width:1px;height:20px;background:rgba(255,255,255,0.06);margin:0 4px"></span>`;
   CAT_KEYS.forEach(c=>{
-    const r=RINGS[c]||160;
-    // Count visible
-    let cnt=0;NODES_A.forEach(n=>{if(n.c===c&&vis[n.id])cnt++});
-    if(cnt<2)return;
-    const cx=cam.x,cy=cam.y;
-    const sc=worldToScreen(cx,cy);
-    const rr=r*cam.z;
-    if(rr<5||sc.x+rr<-100||sc.x-rr>W+100||sc.y+rr<-100||sc.y-rr>H+100)return;
-    ctx.beginPath();
-    ctx.arc(sc.x,sc.y,rr,0,Math.PI*2);
-    ctx.strokeStyle=CAT[c].clr+'06';
-    ctx.lineWidth=1;ctx.setLineDash([3,6]);ctx.stroke();ctx.setLineDash([]);
+    const clr=CAT[c].clr;
+    fhtml+=`<button class="fbtn" data-f="${c}"><span class="fbtn-dot" style="background:${clr}"></span>${CAT[c].lbl}</button>`;
   });
+  filters.innerHTML=fhtml;
 
-  // ── Nodes ──
-  NODES_A.forEach(n=>{
-    if(!vis[n.id])return;
-    const pos=worldToScreen(n.x,n.y);
-    // Frustum cull
-    if(pos.x<-40||pos.x>W+40||pos.y<-40||pos.y>H+40)return;
-    
-    const clr=CAT[n.c]?CAT[n.c].clr:'#64748b';
-    const isHov=n.id===hovId,isSel=n.id===selId;
-    const hl=isHov||isSel;
-    
-    // Glow
-    if(hl){
-      const g=ctx.createRadialGradient(pos.x,pos.y,0,pos.x,pos.y,28);
-      g.addColorStop(0,clr+'25');g.addColorStop(1,'transparent');
-      ctx.beginPath();ctx.arc(pos.x,pos.y,28,0,Math.PI*2);
-      ctx.fillStyle=g;ctx.fill();
-    }
-    // Pulse ring
-    if(isSel){
-      const p=0.5+0.5*Math.sin(time*3);
-      ctx.beginPath();ctx.arc(pos.x,pos.y,26+p*4,0,Math.PI*2);
-      ctx.strokeStyle=clr+Math.floor(60*p).toString(16).padStart(2,'0');
-      ctx.lineWidth=1.2;ctx.stroke();
-    }
-    // Outer ring — fixed pixel size regardless of zoom
-    ctx.beginPath();ctx.arc(pos.x,pos.y,22,0,Math.PI*2);
-    ctx.strokeStyle=hl?clr:clr+'44';
-    ctx.lineWidth=isHov?2:1;ctx.stroke();
-    // BG
-    ctx.beginPath();ctx.arc(pos.x,pos.y,16,0,Math.PI*2);
-    ctx.fillStyle=hl?clr+'30':clr+'12';
-    ctx.fill();
-    // Icon — fixed pixel size
-    ctx.font='15px sans-serif';
-    ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillText(n.i,pos.x,pos.y+1);
-    
-    // Label — fixed pixel size, shown on hover/select
-    if(hl){
-      ctx.font='bold 9px system-ui,-apple-system,sans-serif';
-      ctx.textAlign='center';ctx.textBaseline='top';
-      const txt=n.n;
-      ctx.fillStyle='rgba(8,12,24,0.88)';
-      const m=ctx.measureText(txt);
-      const bw=m.width+12;
-      const rx=pos.x-bw/2,ry=pos.y+24;
-      if(ctx.roundRect)ctx.roundRect(rx,ry,bw,16,4);
-      ctx.fillRect(rx,ry,bw,16);
-      ctx.fillStyle='#e2e8f0';
-      ctx.fillText(txt,pos.x,pos.y+26);
-    }
+  // Remove old listeners by replacing
+  filters.querySelectorAll('.fbtn').forEach(b=>{
+    b.addEventListener('click',()=>{
+      filters.querySelectorAll('.fbtn').forEach(x=>x.classList.toggle('on',x===b));
+      activeFilter=b.dataset.f;
+      hideInfo();
+      render();
+    });
   });
-
-  requestAnimationFrame(draw);
 }
 
 // ═══════════════════════════════════════════════════
-// INTERACTION
+// INFO PANEL
 // ═══════════════════════════════════════════════════
+const panel=document.getElementById('panel');
+const ovr=document.getElementById('ovr');
+let selId=null;
 
-function getNodeAt(sx,sy){
-  const threshold=22;
-  for(let i=NODES_A.length-1;i>=0;i--){
-    const n=NODES_A[i];
-    const pos=worldToScreen(n.x,n.y);
-    const dx=sx-pos.x,dy=sy-pos.y;
-    if(dx*dx+dy*dy<threshold*threshold)return n;
-  }
-  return null;
-}
-
-// ── Mouse ──
-cnv.addEventListener('mousedown',e=>{
-  const n=getNodeAt(e.clientX,e.clientY);
-  if(n){
-    showInfo(n.id);
-    return;
-  }
-  drag.active=true;drag.lastX=e.clientX;drag.lastY=e.clientY;
-  cnv.style.cursor='grabbing';
-});
-cnv.addEventListener('mousemove',e=>{
-  if(drag.active){
-    pan(e.clientX-drag.lastX,e.clientY-drag.lastY);
-    drag.lastX=e.clientX;drag.lastY=e.clientY;
-    return;
-  }
-  const n=getNodeAt(e.clientX,e.clientY);
-  hovId=n?n.id:null;
-  cnv.style.cursor=n?'pointer':'default';
-});
-cnv.addEventListener('mouseup',()=>{drag.active=false;cnv.style.cursor='default'});
-cnv.addEventListener('mouseleave',()=>{drag.active=false;hovId=null});
-
-// ── Scroll zoom ──
-cnv.addEventListener('wheel',e=>{
-  e.preventDefault();
-  const dir=e.deltaY>0?-1:1;
-  zoomAt(cam.z*(1+dir*0.12),e.clientX,e.clientY);
-},{passive:false});
-
-// ── Touch ──
-let touchId=null;
-cnv.addEventListener('touchstart',e=>{
-  if(e.touches.length===1){
-    const t=e.touches[0];
-    const n=getNodeAt(t.clientX,t.clientY);
-    if(n){showInfo(n.id);e.preventDefault();return}
-    drag.active=true;drag.lastX=t.clientX;drag.lastY=t.clientY;
-    touchId=t.identifier;
-  }else if(e.touches.length===2){
-    drag.active=false;
-    const t1=e.touches[0],t2=e.touches[1];
-    lastPinchDist=Math.hypot(t1.clientX-t2.clientX,t1.clientY-t2.clientY);
-  }
-});
-cnv.addEventListener('touchmove',e=>{
-  e.preventDefault();
-  if(e.touches.length===1&&drag.active){
-    const t=e.touches[0];
-    pan(t.clientX-drag.lastX,t.clientY-drag.lastY);
-    drag.lastX=t.clientX;drag.lastY=t.clientY;
-  }else if(e.touches.length===2){
-    const t1=e.touches[0],t2=e.touches[1];
-    const dist=Math.hypot(t1.clientX-t2.clientX,t1.clientY-t2.clientY);
-    if(lastPinchDist>0){
-      const ratio=dist/lastPinchDist;
-      const cx=(t1.clientX+t2.clientX)/2,cy=(t1.clientY+t2.clientY)/2;
-      zoomAt(cam.z*ratio,cx,cy);
-    }
-    lastPinchDist=dist;
-  }
-},{passive:false});
-cnv.addEventListener('touchend',e=>{drag.active=false;lastPinchDist=0});
-
-// ── Zoom controls ──
-document.getElementById('zpi').addEventListener('click',()=>zoomAt(cam.z*1.4));
-document.getElementById('zmo').addEventListener('click',()=>zoomAt(cam.z/1.4));
-document.getElementById('zre').addEventListener('click',()=>{cam.x=0;cam.y=0;setZoom(1)});
-
-// ── Info ──
 function showInfo(id){
-  const n=S[id];if(!n)return;
+  const s=S[id];if(!s)return;
   selId=id;
-  const clr=CAT[n.c]?CAT[n.c].clr:'#64748b';
-  document.getElementById('pn').textContent=n.i+' '+n.n;
-  document.getElementById('pb').textContent=n.t;
-  const b=document.getElementById('pb');
-  b.style.background=clr+'20';b.style.color=clr;
-  document.getElementById('pc').textContent=n.c.toUpperCase()+' · '+n.g.slice(0,4).join(' · ');
-  document.getElementById('pd').textContent=n.d;
-  document.getElementById('pm').textContent=n.p+' · '+n.t;
-  document.getElementById('ip').classList.add('open');
+  const clr=CAT[s.c]?CAT[s.c].clr:'#64748b';
+  document.getElementById('picon').textContent=s.i;
+  document.getElementById('pname').textContent=s.n;
+  document.getElementById('pcat').textContent=s.c.toUpperCase();
+  const pt=document.getElementById('ptype');
+  pt.textContent=s.t;
+  pt.style.background=clr+'20';pt.style.color=clr;
+  document.getElementById('pdesc').textContent=s.d;
+  document.getElementById('ptags').innerHTML=s.g.slice(0,6).map(g=>`<span class="ptag">${g}</span>`).join('');
+  document.getElementById('ppath').textContent=s.p;
+  panel.classList.add('open');ovr.classList.add('open');
+  document.body.style.overflow='hidden';
 }
-function hideInfo(){selId=null;document.getElementById('ip').classList.remove('open')}
-document.getElementById('pcl').addEventListener('click',hideInfo);
 
-// ── Filter ──
-document.querySelectorAll('.fbtn').forEach(b=>{
-  b.addEventListener('click',()=>{
-    document.querySelectorAll('.fbtn').forEach(x=>x.classList.toggle('on',x===b));
-    activeFilter=b.dataset.f;hideInfo();
-  });
-});
+function hideInfo(){
+  selId=null;panel.classList.remove('open');ovr.classList.remove('open');
+  document.body.style.overflow='';
+}
 
-// ── Search ──
-document.getElementById('search').addEventListener('input',e=>{searchQ=e.target.value;hideInfo()});
-
-// ── Keyboard ──
+document.getElementById('pcls').addEventListener('click',hideInfo);
+ovr.addEventListener('click',hideInfo);
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape')hideInfo();
-  if(e.key==='/'&&!e.ctrlKey){document.getElementById('search').focus();e.preventDefault()}
-  if(e.key==='+'||e.key==='=')zoomAt(cam.z*1.4);
-  if(e.key==='-')zoomAt(cam.z/1.4);
-  if(e.key==='0'){cam.x=0;cam.y=0;setZoom(1)}
+  if(e.key==='/'&&!e.ctrlKey&&!e.metaKey){search.focus();e.preventDefault()}
 });
 
-// ── Legend ──
-const lgd=document.getElementById('lgd');
-CAT_KEYS.forEach(c=>{
-  const el=document.createElement('div');
-  el.className='lit';
-  el.innerHTML=`<span class="dt" style="background:${CAT[c].clr}"></span>${CAT[c].lbl}`;
-  el.addEventListener('click',()=>{
-    document.querySelectorAll('.fbtn').forEach(b=>{
-      b.classList.toggle('on',b.dataset.f===c||b.dataset.f==='all');
-      if(b.dataset.f===c)b.classList.add('on');else b.classList.remove('on');
-    });
-    activeFilter=c;hideInfo();
-  });
-  lgd.appendChild(el);
+// ═══════════════════════════════════════════════════
+// SEARCH
+// ═══════════════════════════════════════════════════
+search.addEventListener('input',()=>{
+  searchQ=search.value;
+  hideInfo();
+  render();
 });
 
 // ═══════════════════════════════════════════════════
 // GO
 // ═══════════════════════════════════════════════════
-draw();
+buildFilters();
+render();
 </script>
 </body>
 </html>
