@@ -22,6 +22,9 @@ venv/
 
 # Node
 node_modules/
+package.json
+package-lock.json
+bun.lock
 dist/
 build/
 
@@ -44,5 +47,5 @@ knowledge/user_profiles/*
 *.orig
 *.backup
 
-# User profiles — personal agent save files
+# User profiles â€” personal agent save files
 memory/gaya_profile.json

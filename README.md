@@ -21,7 +21,7 @@ A transferable AI agent framework with a built-in leveling system, **34 skill mo
 ```powershell
 git clone https://github.com/ronakraval104-sys/Gaya_Agent_PR.git
 cd Gaya_Agent_PR
-.\Gaya-Agent\scripts\install.ps1
+.\scripts\install.ps1
 ```
 
 The interactive installer will:
@@ -35,7 +35,7 @@ The interactive installer will:
 
 **Time:** ~5 minutes interactive, ~10 minutes for model pulls (first time only)
 
-See [INSTALL.md](Gaya-Agent/INSTALL.md) for details.
+See [INSTALL.md](INSTALL.md) for details.
 
 > **Required:** Ollama running with `qwen2.5:7b` and `qwen2.5-coder-fixed:7b`.
 > **Optional:** Superpowers plugin in `opencode.jsonc` for auto-updating skills.
@@ -46,23 +46,22 @@ See [INSTALL.md](Gaya-Agent/INSTALL.md) for details.
 
 | Path | What It Is |
 |---|---|
-| `Gaya-Agent/agent/` | Full Gaya agent definition — personality, workflow, rules |
-| `Gaya-Agent/skills/` | **All 34 skill modules** (20 custom + 14 Superpowers) |
-| `Gaya-Agent/agents/` | Bob + Freya subagent profiles |
-| `Gaya-Agent/memory/` | Cross-session memory and lessons |
+| `skills/` | **All 34 skill modules** (20 custom + 14 Superpowers + 2 bonus) |
+| `agents/` | Bob + Freya subagent profiles, Gaya framework |
+| `memory/` | Cross-session memory and lessons |
 | `skills-dashboard.html` | Interactive animated skill visualization |
-| `Gaya-Agent/LEVELING_SYSTEM.md` | XP calculation, titles, penalties, achievements |
-| `Gaya-Agent/agent-profile-schema.json` | Cross-agent save file format |
-| `Gaya-Agent/skills-lock.json` | Skill inventory lock file |
-| `Gaya-Agent/docs/` | Setup guides (MCP, token tracking) |
-| `Gaya-Agent/scripts/` | Install, backup, token tracker, MCP setup |
-| `Gaya-Agent/templates/` | Agent templates and onboarding guide |
+| `LEVELING_SYSTEM.md` | XP calculation, titles, penalties, achievements |
+| `agent-profile-schema.json` | Cross-agent save file format |
+| `skills-lock.json` | Skill inventory lock file |
+| `docs/` | Setup guides (MCP, token tracking) |
+| `scripts/` | Install, backup, token tracker, MCP setup |
+| `templates/` | Agent templates and onboarding guide |
 
 ---
 
-## Skill Catalog — 34 Modules
+## Skill Catalog — 34 + 2 Modules
 
-Skills are divided into **two families**: Custom (domain-specific tools) and Superpowers (process/workflow discipline).
+Skills are divided into **two families**: Custom (domain-specific tools), Superpowers (process/workflow discipline), and Bonus (from merged content).
 
 ### 🧩 Custom Skills (20)
 
@@ -108,6 +107,13 @@ Skills are divided into **two families**: Custom (domain-specific tools) and Sup
 | 13 | **Parallel Agents** | 🧩 | Process | Concurrency for independent tasks | Flexible |
 | 14 | **Writing Skills** | ✏ | Quality | TDD for documentation: watch agents fail first | Rigid |
 
+### 🏆 Bonus Skills (2 — from Extended Library)
+
+| # | Skill | Icon | Category | What It Does |
+|---|---|---|---|---|
+| 1 | **Architecture Diagram** | 📐 | Dev | Build interactive system architecture diagrams with animated data flows |
+| 2 | **3ds Max Bridge** | 🏗 | Specialist | HTTP bridge for 3ds Max automation |
+
 ---
 
 ## Skill Interaction Flow
@@ -139,9 +145,9 @@ USER REQUEST
 └──────────────────────────────────────────────────┘
      │
      ├──→ 🎨 CREATION SKILLS (frontend, 3D, image, video, ComfyUI)
-     ├──→ ⚙️ DEV SKILLS (UI bundle, architecture, UE5, troubleshooting)
+     ├──→ ⚙️ DEV SKILLS (UI bundle, architecture, diagram, UE5, troubleshooting)
      ├──→ 📊 BUSINESS SKILLS (consulting, storytelling, PPTX, proposals)
-     └──→ 🛠️ SPECIALIST SKILLS (game design, Pinokio, ArchViz)
+     └──→ 🛠️ SPECIALIST SKILLS (game design, Pinokio, ArchViz, 3ds Max)
 ```
 
 ### Skill Dependencies (Chain Map)
@@ -178,7 +184,7 @@ CUSTOM SKILL ATTACHMENT POINTS:
 
 Open [`skills-dashboard.html`](skills-dashboard.html) in any browser for an interactive force-graph visualization:
 
-- **34 nodes** — one per skill, color-coded by category
+- **36 nodes** — one per skill, color-coded by category
 - **Animated layout** — skills cluster by category with physics simulation
 - **Filter by type** — ALL / Creation / Dev / Process / Quality / Business / Specialist / Superpowers / Custom
 - **Search** — find skills by name, description, or tags
@@ -198,11 +204,11 @@ If you already have Gaya Agent installed and just want to update the skills (wit
 # Clone just the skills from the repo
 git clone --depth 1 --filter=blob:none --sparse https://github.com/ronakraval104-sys/Gaya_Agent_PR.git Gaya_Skills_Temp
 cd Gaya_Skills_Temp
-git sparse-checkout set "Gaya-Agent/skills"
+git sparse-checkout set "skills"
 git checkout
 
 # Copy to your OpenCode config
-Copy-Item -Recurse -Force "Gaya-Agent/skills\*" "$env:USERPROFILE\.config\opencode\skills\"
+Copy-Item -Recurse -Force "skills\*" "$env:USERPROFILE\.config\opencode\skills\"
 
 # Clean up
 cd ..; Remove-Item -Recurse -Force Gaya_Skills_Temp
@@ -211,17 +217,14 @@ cd ..; Remove-Item -Recurse -Force Gaya_Skills_Temp
 Or use the included update script:
 
 ```powershell
-# From inside the Gaya-Agent repo
-.\Gaya-Agent\scripts\update-skills.ps1
+# From inside the repo
+.\scripts\update-skills.ps1
 
 # Dry run to preview
-.\Gaya-Agent\scripts\update-skills.ps1 -DryRun
-
-# Custom paths
-.\Gaya-Agent\scripts\update-skills.ps1 -OpenCodeSkillsDir "D:\MyConfig\opencode\skills"
+.\scripts\update-skills.ps1 -DryRun
 ```
 
-The script copies all 34 skills to your OpenCode config directory. No config files, agents, or memory are touched — just skills.
+The script copies all 36 skills to your OpenCode config directory. No config files, agents, or memory are touched — just skills.
 
 ---
 
@@ -259,7 +262,7 @@ Speed is never chased. It is earned by correct process.
 
 Every task earns XP. Waste incurs penalties. Five consecutive wastes = title stripped.
 
-See [LEVELING_SYSTEM.md](Gaya-Agent/LEVELING_SYSTEM.md) for full rules.
+See [LEVELING_SYSTEM.md](LEVELING_SYSTEM.md) for full rules.
 
 ---
 
@@ -309,7 +312,7 @@ The 14 Superpowers skills come from [obra/superpowers](https://github.com/obra/s
 
 ## License
 
-This framework bundles skills from multiple open-source sources (Anthropic, Salesforce, ByteDance, Matt Pocock, and more). Each skill maintains its original license. The Gaya agent framework itself is shared under MIT.
+This framework bundles skills from multiple open-source sources (Anthropic, Salesforce, ByteDance, Matt Pocock, obra/superpowers, and more). Each skill maintains its original license. The Gaya agent framework itself is shared under MIT — see [LICENSE](LICENSE).
 
 *"The quality of your action is your signature."*
 — Bhagavad Gita (channeled through Gaya)

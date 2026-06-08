@@ -1,0 +1,91 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "Gaya",
+
+  // ═══════════════════════════════════════════════════════════════════
+  // OPENCODE ZEN — Single provider for all agents
+  // ═══════════════════════════════════════════════════════════════════
+  // All models run via OpenCode Zen API (opencode.ai/zen).
+  // No local GPU required. All models are free during evaluation.
+  // ═══════════════════════════════════════════════════════════════════
+  "provider": {
+    "zen": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "OpenCode Zen",
+      "options": {
+        "baseURL": "https://opencode.ai/zen/v1"
+      },
+      "models": {
+        "big-pickle": {
+          "name": "Big Pickle — Gaya (Commander, Philosopher, Poet)",
+          "limit": {
+            "context": 200000,
+            "output": 128000
+          }
+        },
+        "mimo-v2.5-free": {
+          "name": "MiMo V2.5 Free — Freya (Shadow, Writer, Vision)",
+          "limit": {
+            "context": 1000000,
+            "output": 128000
+          }
+        },
+        "nemotron-3-super-free": {
+          "name": "Nemotron 3 Super Free — Bob (Builder, Coder)",
+          "limit": {
+            "context": 1000000,
+            "output": 128000
+          }
+        }
+      }
+    }
+  },
+
+  // ═══ ALL AGENTS — OpenCode Zen Models ════════════════════════════
+  "agent": {
+    // ─── Gaya (default agent) ─────────────────────────────────────
+    // The Commander. Runs on Big Pickle via OpenCode Zen.
+    // Strong reasoning, 200K context, tool calling.
+    "gaya": {
+      "description": "Divine Commander, Philosopher, Poet of Evergrowth. Powered by Big Pickle via OpenCode Zen.",
+      "mode": "subagent",
+      "model": "zen/big-pickle",
+      "temperature": 0.5,
+      "fallbackModel": "zen/big-pickle",
+      "permission": {
+        "edit": "allow",
+        "bash": "allow",
+        "browser": "allow",
+        "network": "allow"
+      }
+    },
+    // ─── Bob (builder) ────────────────────────────────────────────
+    // Nemotron 3 Super Free via OpenCode Zen. Low temp for precision.
+    "bob": {
+      "description": "Implementation workhorse on Nemotron 3 Super Free. Use for boilerplate, scripts, grunt work.",
+      "mode": "subagent",
+      "model": "zen/nemotron-3-super-free",
+      "temperature": 0.2,
+      "permission": {
+        "edit": "allow",
+        "bash": "allow"
+      }
+    },
+    // ─── Freya (shadow) ───────────────────────────────────────────
+    // MiMo V2.5 Free via OpenCode Zen. Writing, SEO, deep reasoning.
+    "freya": {
+      "description": "Uncensored shadow agent on MiMo V2.5 Free. Handles writing, SEO, logic, deep reasoning. 1M context window.",
+      "mode": "subagent",
+      "model": "zen/mimo-v2.5-free",
+      "temperature": 0.7,
+      "permission": {
+        "edit": "allow",
+        "bash": "allow"
+      }
+    }
+  },
+
+  // MCP servers — add yours here
+  "mcp": {
+  }
+}
